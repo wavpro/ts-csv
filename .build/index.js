@@ -40,14 +40,79 @@ class Table {
     row.pushMany(v);
     return row;
   }
+  import(file) {
+    this.#rows = this.#fileToData(file);
+  }
+  export() {
+    function value(v) {
+      if (v.includes("\n") || v.includes('"')) {
+        v = v.replace(/"/g, '""');
+        v = `"${v}"`;
+      }
+      return v;
+    }
+    let csv = "";
+    for (let row of this.#rows) {
+      let columns = row.getAll();
+      for (let i = 0; i < columns.length; i++) {
+        csv += value(columns[i]);
+        if (i === columns.length - 1) {
+          csv += "\n";
+        } else {
+          csv += ",";
+        }
+      }
+    }
+    return csv;
+  }
+  #fileToData(file) {
+    if (!file.endsWith("\n")) {
+      file = file + "\n";
+    }
+    let inQuotes = false;
+    let currentValue = "";
+    let rowNumber = 0;
+    let rows = [];
+    let columns = [];
+    let skip = false;
+    for (let i = 0; i < file.length; i++) {
+      const character = file[i];
+      const nextCharacter = file[i + 1];
+      if (skip) {
+        skip = false;
+        continue;
+      }
+      if (inQuotes) {
+        if (character === '"' && nextCharacter === '"') {
+          skip = true;
+          currentValue += character;
+          continue;
+        }
+        if (character === '"') {
+          inQuotes = false;
+          continue;
+        }
+        currentValue += character;
+      }
+      if (!inQuotes) {
+        if (character === '"') {
+          inQuotes = true;
+        } else if (character === ",") {
+          columns.push(currentValue);
+          currentValue = "";
+        } else if (character === "\n") {
+          columns.push(currentValue);
+          currentValue = "";
+          rows.push(new Row().pushMany(columns));
+          rowNumber++;
+          columns = [];
+        } else {
+          currentValue += character;
+        }
+      }
+    }
+    return rows;
+  }
 }
-const table = new Table();
-table.createRow(0).set(0, "id").set(1, "name").set(2, "order_id");
-table.createRow(1).set(0, "5").set(1, "foo").set(2, "7");
-table.createRow(2).push("6").push("bar").push("8");
-table.pushRow(["9", "exc", "10"]);
-console.log("0:", table.getRow(0).getAll());
-console.log("1:", table.getRow(1).getAll());
-console.log("2:", table.getRow(2).getAll());
-console.log("3:", table.getRow(3).getAll());
+
 //# sourceMappingURL=index.js.map
