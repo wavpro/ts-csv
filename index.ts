@@ -1,56 +1,60 @@
 class Row {
-  #columns: string[] = [];
+  columns: string[] = [];
 
   push(v: string) {
-    this.#columns.push(v);
+    this.columns.push(v);
 
     return this;
   }
 
   pushMany(v: string[]) {
-    this.#columns = [...this.#columns, ...v]
+    this.columns = [...this.columns, ...v];
 
     return this;
   }
 
   set(i: number, v: string) {
-    this.#columns[i] = v;
+    this.columns[i] = v;
 
     return this;
   }
 
   get(i: number): string {
-    return this.#columns[i];
+    return this.columns[i];
   }
 
   getAll(): string[] {
-    return this.#columns;
+    return this.columns;
   }
 
   getLength(): number {
-    return this.#columns.length;
+    return this.columns.length;
   }
 }
 
-class Table {
-  #rows: Row[] = [];
+export default class Table {
+  rows: Row[] = [];
 
   getRow(i: number): Row {
-    return this.#rows[i] || this.createRow(i);
+    return this.rows[i] || this.createRow(i);
+  }
+
+  getRows(): Row[] {
+    return this.rows;
   }
 
   createRow(i: number): Row {
-    if (this.#rows[i]) {
-      return this.#rows[i];
+    if (this.rows[i]) {
+      return this.rows[i];
     }
 
-    this.#rows[i] = new Row();
+    this.rows[i] = new Row();
 
-    return this.#rows[i];
+    return this.rows[i];
   }
 
   pushRow(v: string[]): Row {
-    let row = this.createRow(this.#rows.length);
+    let row = this.createRow(this.rows.length);
 
     row.pushMany(v);
 
@@ -58,14 +62,14 @@ class Table {
   }
 
   import(file: string) {
-    this.#rows = this.#fileToData(file);
+    this.rows = this.fileToData(file);
   }
 
   export() {
     function value(v: string) {
       if (v.includes('\n') || v.includes('"')) {
         v = v.replace(/"/g, '""');
-      
+
         v = `"${v}"`
       }
 
@@ -74,9 +78,9 @@ class Table {
 
     let csv = '';
 
-    for (let row of this.#rows) {
+    for (let row of this.rows) {
       let columns = row.getAll()
-      
+
       for (let i = 0; i < columns.length; i++) {
         csv += value(columns[i]);
 
@@ -91,7 +95,7 @@ class Table {
     return csv;
   }
 
-  #fileToData(file: string) {
+  fileToData(file: string) {
     if (!file.endsWith('\n')) {
       file = file + '\n';
     }
