@@ -67,7 +67,7 @@ export default class Table {
 
   export() {
     function value(v: string) {
-      if (v.includes('\n') || v.includes('"')) {
+      if (v.includes('\n') || v.includes('"') || v.includes(',')) {
         v = v.replace(/"/g, '""');
 
         v = `"${v}"`
