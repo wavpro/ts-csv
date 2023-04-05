@@ -152,4 +152,12 @@ export default class Table {
 
     return rows;
   }
+
+  static isValidCSV(csv: string): boolean {
+    let table = new Table();
+
+    table.import(csv);
+
+    return table.export() === csv;
+  }
 }
