@@ -158,6 +158,6 @@ export default class Table {
 
     table.import(csv);
 
-    return table.export() === csv;
+    return table.export().trim() === csv.trim();
   }
 }
